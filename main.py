@@ -27,3 +27,4 @@ try:
     print("mail has been send successfully.")
 except smtplib.SMTPException as e:
     print(e)
+    print("your email sent failed!")

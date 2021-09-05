@@ -1,4 +1,10 @@
-#include<bits/stdc++.h>
+#include<iostream>
+#include<cstdio>
+#include<cstdlib>
+#include<algorithm>
+#include<cmath>
+#include<fstream>
+#include<ctime>
 #include"litUI.h"
 using namespace std;
 
@@ -6,12 +12,15 @@ const int MAXN=105;
 const int MAXM=10005;
 struct ti{
     int year,month,day;
+    int hour,min,sec;
+    bool jue;//是否定时通知；
 };
-struct node{
+struct node{    
     ti time;
     char s[MAXN];
     char bei[MAXN];
     int no;
+    bool hasdone;  //是否已经做过了时间戳
     inline void clear(){
         time.year=time.month=time.day=0;
         return ;
@@ -23,14 +32,22 @@ int tot;
 bool sort_in(node a,node b){
     if(a.time.year==b.time.year){
         if(a.time.month==b.time.month){
-            return a.time.day<b.time.day;
+            if(a.time.day==b.time.day){
+                if(a.time.hour==b.time.hour){
+                    if(a.time.min==b.time.min){
+                        return a.time.sec<b.time.sec;
+                    }
+                    else return a.time.min<b.time.min;
+                }
+                else return a.time.hour<b.time.hour;
+            }
+            else return a.time.day<b.time.day;
+
         }
         else return a.time.month<b.time.month;
     }
     else return a.time.year<b.time.year;
 }
-
-
 inline void read();
 inline void sort_it();
 inline void debug();
@@ -40,7 +57,10 @@ inline void swapp (node &a,node &b);
 inline void wrout1();
 inline void munu();
 inline void cun();
-
+/*
+function cun had been updated;
+2021/9/5
+*/
 inline void cun(){
     ofstream fout;
     fout.open("cun.txt");
@@ -48,10 +68,15 @@ inline void cun(){
     for(int i=1;i<=tot;i++)
     {
         fout<<cu[i].no<<" "<<cu[i].time.year<<" "<<cu[i].time.month<<" "
-        <<cu[i].time.day<<" "<<cu[i].s<<" "<<cu[i].bei<<endl;
+        <<cu[i].time.day<<" "<<cu[i].time.hour<<" "<<cu[i].time.min
+        <<" "<<cu[i].time.sec<<" "<<cu[i].time.jue<<" "<<cu[i].s<<" "<<cu[i].bei<<endl;
     }
     return ;
 }
+
+/*
+swap didn't need to update 2021/9/5
+*/
 inline void swapp(node &a,node &b){
     node c;
     c=a;a=b;b=c;
@@ -61,6 +86,10 @@ inline void swapp(node &a,node &b){
     return ;
 
 }
+/*
+function read have been updated 2021/9/5 20:00
+need time mark 2021/9/5 20:53
+*/
 inline void read(){
     ifstream fin;
     fin.open("cun.txt");
@@ -69,6 +98,8 @@ inline void read(){
     for(int i=1;i<=tot;i++){
         fin>>cu[i].no;
         fin>>cu[i].time.year>>cu[i].time.month>>cu[i].time.day;
+        fin>>cu[i].time.hour>>cu[i].time.min>>cu[i].time.sec;
+        fin>>cu[i].time.jue;
         fin>>cu[i].s;
         fin>>cu[i].bei;
     }
@@ -85,13 +116,24 @@ inline void sort_it(){
 inline void debug(){
     for(int i=1;i<=tot;i++)
     {
-        printf("%d %d %d\n"
+        printf("%d / %d / %d / %d / %d / %d"
                         ,cu[i].time.year
                         ,cu[i].time.month
-                        ,cu[i].time.day);
+                        ,cu[i].time.day
+                        ,cu[i].time.hour
+                        ,cu[i].time.min
+                        ,cu[i].time.sec);
+        cout<<"事件: "<<cu[i].s<<"  "<<"备注："<<cu[i].bei<<endl;
+        if(cu[i].time.jue==0)printf("未在通知队列中\n");
+        else printf("已在通知队列中\n");
+        
     }
-    printf("debug函数结束！");
+    printf("debug函数结束！\n\n");
 }
+/*
+insert function update at 2021.9.1 11:55
+更新了时分秒和定时推送
+*/
 inline void insert(){
     int li_year=0,li_month=0,li_day=0;
     li_year=insert_UI_year();
@@ -102,6 +144,23 @@ inline void insert(){
     cu[tot].time.month=li_month;
     cu[tot].time.day=li_day;
     cu[tot].no=tot;
+    int jud_ic=insert_UI_jud();
+    if(jud_ic==1){ //是否输入时分秒；
+        cu[tot].time.hour=insert_gethour();
+        cu[tot].time.min=insert_getmin();
+        cu[tot].time.sec=insert_getsec();
+        int jud_is=insert_UI_jud2(); //是否开启定时推送；
+        if(jud_is==1){
+            cu[tot].time.jue=1;
+        }
+        else cu[tot].time.jue=0;
+    }
+    else {
+        cu[tot].time.hour=-1;
+        cu[tot].time.min=-1;
+        cu[tot].time.sec=-1;
+        cu[tot].time.jue=0;
+    }
     insert_UI_s();
     cin>>cu[tot].s;
     insert_UI_bei();
@@ -110,16 +169,22 @@ inline void insert(){
     insert_had();
     cun();
 }
+/*
+delete system has not been updated;
+*/
 inline void dele()
 {
     dele_init();
     for(int i=1;i<=tot;i++)
     {
-        printf("    >  No: %d   %d / %d / %d \n"
+        printf("    >  No: %d   %d / %d / %d / %d / %d / %d\n"
                                             ,cu[i].no
                                             ,cu[i].time.year
                                             ,cu[i].time.month
-                                            ,cu[i].time.day);
+                                            ,cu[i].time.day
+                                            ,cu[i].time.hour
+                                            ,cu[i].time.min
+                                            ,cu[i].time.sec);
         cout<<"        事项： "<<cu[i].s<<endl;
         cout<<"        备注： "<<cu[i].bei<<endl;
         cout<<endl;
@@ -130,18 +195,25 @@ inline void dele()
     debug();
     cu[tot].clear();
     tot--;
+    sort_it();
     cun();
     return ;
 }
+/*
+wrout1 need to update;
+*/
 inline void wrout1(){
     wrout1_UI_init();
     for(int i=1;i<=tot;i++)
     {
-        printf("    >  No: %d   %d / %d / %d \n"
+        printf("    >  No: %d   %d / %d / %d / %d / %d / %d\n"
                                             ,cu[i].no
                                             ,cu[i].time.year
                                             ,cu[i].time.month
-                                            ,cu[i].time.day);
+                                            ,cu[i].time.day
+                                            ,cu[i].time.hour
+                                            ,cu[i].time.min
+                                            ,cu[i].time.sec);
         cout<<"        事项： "<<cu[i].s<<endl;
         cout<<"        备注： "<<cu[i].bei<<endl;
         cout<<endl;
@@ -156,7 +228,8 @@ inline void wrout1(){
     for(int i=l;i<=r;i++)
     {
         fout<<">  项目编号 NO："<<cu[i].no<<" 时间： "<<
-        cu[i].time.year<<"-"<<cu[i].time.month<<"-"<<cu[i].time.day<<endl;
+        cu[i].time.year<<"-"<<cu[i].time.month<<"-"<<cu[i].time.day
+        <<"-"<<cu[i].time.hour<<"-"<<cu[i].time.min<<"-"<<cu[i].time.sec<<endl;
         fout<<"        事项： "<<cu[i].s<<endl;
         fout<<"        备注： "<<cu[i].bei<<endl;
         fout<<endl;

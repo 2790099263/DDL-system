@@ -1,0 +1,30 @@
+body{
+    background-image: url("#");
+}
+.w{
+    width: 1000px;
+    margin: 0 auto;
+}
+.ding{
+    width: 1000px;
+    height: 50px;
+    background-color: red;
+}
+.logo{
+    width: 200px;
+    height: 50px;
+    background-color:royalblue;
+    float: left;
+}
+.nav{
+    width: 600px;
+    height: 50px;
+    background-color:orange;
+    float: left;
+}
+.user{
+    width: 200px;
+    height: 50px;
+    background-color: red;
+    float: left;
+}
